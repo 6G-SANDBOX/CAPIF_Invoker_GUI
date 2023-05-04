@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  invoker_gui:
+    image: invoker_gui
+    networks:
+      - demo-network
+    hostname: dummy
+    container_name: invoker_gui
+    build:
+      context: ./invoker_gui
+    volumes:
+      - ./invoker_gui:/usr/src/app
+    environment:
+      - REDIS_HOST=redis_netapp
+      - REDIS_PORT=6379
+      - PATH_TO_CERTS=/usr/src/app/capif_onboarding
+      - REQUESTS_CA_BUNDLE=/usr/src/app/ca.crt
+      - SSL_CERT_FILE=/usr/src/app/ca.crt
+      - CAPIF_HOSTNAME=capifcore
+      - CAPIF_PORT=8080
+      - EASY_RSA_PORT=8083
+      - CAPIF_PORT_HTTPS=443
+      - CAPIF_CALLBACK_URL=host.docker.internal
+      - CAPIF_CALLBACK_PORT=8086
+      - NEF_USER=admin@my-email.com
+      - NEF_PASS=pass
+      - NEF_IP=host.docker.internal
+      - NEF_PORT=8888
+      - NEF_CALLBACK_IP=host.docker.internal
+      - NEF_CALLBACK_PORT=8085
+    extra_hosts:
+      - host.docker.internal:host-gateway
+      - capifcore:host-gateway
+      # - one_provider_gui:host-gateway
+      - register:host-gateway
+      - easy-rsa:host-gateway
+
+networks:
+  demo-network:
+    external: true
+# networks: 
+#   default: 
+#     external: 
+#       name: capif-network

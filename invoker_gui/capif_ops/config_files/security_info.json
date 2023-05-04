@@ -1,0 +1,18 @@
+{
+    "securityInfo": [
+      {
+        "prefSecurityMethods": [
+          "Oauth"
+        ],
+        "authenticationInfo": "string",
+        "authorizationInfo": "string"
+      }
+    ],
+    "notificationDestination": "https://mynotificationdest.com",
+    "requestTestNotification": true,
+    "websockNotifConfig": {
+      "websocketUri": "string",
+      "requestWebsocketUri": true
+    },
+    "supportedFeatures": "fff"
+  }

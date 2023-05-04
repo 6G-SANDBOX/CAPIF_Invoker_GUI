@@ -1,0 +1,8 @@
+requests == 2.26.0
+evolved5g >= 0.8.9
+configparser
+redis
+pyopenssl
+pyjwt
+art
+termcolor
