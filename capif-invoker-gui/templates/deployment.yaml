@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "capif-invoker-gui.fullname" . }}-invoker-gui
+  labels:
+    io.kompose.service: invoker-gui
+  {{- include "capif-invoker-gui.labels" . | nindent 4 }}
+  annotations:
+    kompose.cmd: kompose -f docker-compose.yml convert
+    kompose.version: 1.28.0 (c4137012e)
+spec:
+  replicas: {{ .Values.invokerGui.replicas }}
+  selector:
+    matchLabels:
+      io.kompose.service: invoker-gui
+    {{- include "capif-invoker-gui.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        io.kompose.network/demo-network: "true"
+        io.kompose.service: invoker-gui
+      {{- include "capif-invoker-gui.selectorLabels" . | nindent 8 }}
+      annotations:
+        kompose.cmd: kompose -f docker-compose.yml convert
+        kompose.version: 1.28.0 (c4137012e)
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      {{- if eq .Values.environment "kubernetes-athens" }}
+      hostAliases:
+        - ip: "{{ .Values.ingress_ip.athens }}"
+          hostnames:
+            - "{{ .Values.invokerGui.invokerGui.env.capifHostname }}"
+      {{- end }}
+      {{- if eq .Values.environment "kubernetes-uma" }}
+      hostAliases:
+        - ip: "{{ .Values.ingress_ip.uma }}"
+          hostnames:
+            - "{{ .Values.invokerGui.invokerGui.env.capifHostname }}"
+      {{- end }}
+      containers:
+      - env:
+        - name: CAPIF_CALLBACK_PORT
+          value: {{ quote .Values.invokerGui.invokerGui.env.capifCallbackPort }}
+        - name: CAPIF_CALLBACK_URL
+          value: {{ quote .Values.invokerGui.invokerGui.env.capifCallbackUrl }}
+        - name: CAPIF_HOSTNAME
+          value: {{ quote .Values.invokerGui.invokerGui.env.capifHostname }}
+        - name: CAPIF_PORT
+          value: {{ quote .Values.invokerGui.invokerGui.env.capifPort }}
+        - name: CAPIF_PORT_HTTPS
+          value: {{ quote .Values.invokerGui.invokerGui.env.capifPortHttps }}
+        - name: NEF_CALLBACK_IP
+          value: {{ quote .Values.invokerGui.invokerGui.env.nefCallbackIp }}
+        - name: NEF_CALLBACK_PORT
+          value: {{ quote .Values.invokerGui.invokerGui.env.nefCallbackPort }}
+        - name: NEF_IP
+          value: {{ quote .Values.invokerGui.invokerGui.env.nefIp }}
+        - name: NEF_PASS
+          value: {{ quote .Values.invokerGui.invokerGui.env.nefPass }}
+        - name: NEF_PORT
+          value: {{ quote .Values.invokerGui.invokerGui.env.nefPort }}
+        - name: NEF_USER
+          value: {{ quote .Values.invokerGui.invokerGui.env.nefUser }}
+        - name: PATH_TO_CERTS
+          value: {{ quote .Values.invokerGui.invokerGui.env.pathToCerts }}
+        - name: REQUESTS_CA_BUNDLE
+          value: {{ quote .Values.invokerGui.invokerGui.env.requestsCaBundle }}
+        - name: SSL_CERT_FILE
+          value: {{ quote .Values.invokerGui.invokerGui.env.sslCertFile }}
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.invokerGui.invokerGui.image.repository }}-{{ .Values.invokerGui.invokerGui.image.tag
+          | default .Chart.AppVersion }}
+        imagePullPolicy: Always
+        name: invoker-gui
+        ports:
+        - containerPort: 8085
+        resources: {}
+      restartPolicy: Always

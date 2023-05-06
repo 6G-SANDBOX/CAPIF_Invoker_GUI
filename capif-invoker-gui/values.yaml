@@ -1,0 +1,36 @@
+# -- The Environment variable. It accepts: 'kuberentes-athens', 'kuberentes-uma', 'openshift'
+environment: "openshift"
+
+# -- If env: 'kuberentes-athens' or env: 'kuberentes-uma', use the Ip address dude for the kubernetes to your Ingress Controller ej: kubectl -n NAMESPACE_CAPIF get ing s
+ingress_ip: 
+    athens: "10.161.1.126"
+    uma: "10.11.23.49"
+
+invokerGui:
+  invokerGui:
+    env:
+      capifCallbackPort: "8086"
+      capifCallbackUrl: my-capif.apps.ocp-epg.hi.inet
+      capifHostname: my-capif.apps.ocp-epg.hi.inet
+      capifPort: "80"
+      capifPortHttps: "443"
+      nefCallbackIp: my-nef.apps.ocp-epg.hi.inet
+      nefCallbackPort: "80"
+      nefIp: my-nef.apps.ocp-epg.hi.inet
+      nefPass: pass
+      nefPort: "80"
+      nefUser: admin@my-email.com
+      pathToCerts: /usr/src/app/capif_onboarding
+      requestsCaBundle: /usr/src/app/ca.crt
+      sslCertFile: /usr/src/app/ca.crt
+    image:
+      repository: 709233559969.dkr.ecr.eu-central-1.amazonaws.com/evolved5g:capif-one-invoker-gui
+      tag: ""
+  ports:
+  - name: "capif-invoker-gui"
+    port: 8085
+    targetPort: 8085
+  type: ClusterIP
+  replicas: 1
+
+kubernetesClusterDomain: cluster.local
