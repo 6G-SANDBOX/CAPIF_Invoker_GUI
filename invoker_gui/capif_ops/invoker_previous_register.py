@@ -6,11 +6,11 @@ from termcolor import colored
 
 class PreviousRegister():
 
-    def __register_invoker_to_capif(self, capif_ip, capif_port, username, password, role, description, cn):
+    def __register_invoker_to_capif(self, register_ip, register_port, username, password, role, description, cn):
 
             #print(colored("Registering exposer to CAPIF","yellow"))
             #url = "https://register:8084/register".format(capif_port)
-            url = "http://{}:{}/register".format(capif_ip, capif_port)
+            url = "https://{}:{}/register".format(register_ip, register_port)
 
             payload = dict()
             payload['username'] = username
@@ -24,33 +24,21 @@ class PreviousRegister():
             }
 
             try:
-                # print(colored("''''''''''REQUEST'''''''''''''''''","blue"))
-                # print(colored(f"Request: to {url}","blue"))
-                # print(colored(f"Request Headers: {headers}", "blue"))
-                # print(colored(f"Request Body: {json.dumps(payload)}", "blue"))
-                # print(colored(f"''''''''''REQUEST'''''''''''''''''", "blue"))
 
                 response = requests.request("POST", url, headers=headers, data=json.dumps(payload), verify=False)
                 response.raise_for_status()
                 response_payload = json.loads(response.text)
 
-                # print(colored("''''''''''RESPONSE'''''''''''''''''","green"))
-                # print(colored(f"Response to: {response.url}","green"))
-                # print(colored(f"Response Headers: {response.headers}","green"))
-                # print(colored(f"Response: {response.json()}","green"))
-                # print(colored(f"Response Status code: {response.status_code}","green"))
-                # print(colored("Success to register new exposer","green"))
-                # print(colored("''''''''''RESPONSE'''''''''''''''''","green"))
                 return response_payload['id'], response_payload['ccf_onboarding_url'], response_payload['ccf_discover_url'],
             except requests.exceptions.HTTPError as err:
                 raise Exception(err.response.status_code)
 
 
-    def __get_capif_auth(self, capif_ip, capif_port, username, password):
+    def __get_capif_auth(self, register_ip, register_port, username, password):
 
             #print("Geting Auth to exposer")
             #url = "https://register:8084/getauth".format(capif_port)
-            url = "http://{}:{}/getauth".format(capif_ip, capif_port)
+            url = "https://{}:{}/getauth".format(register_ip, register_port)
 
             payload = dict()
             payload['username'] = username
@@ -61,24 +49,12 @@ class PreviousRegister():
             }
 
             try:
-                # print("''''''''''REQUEST'''''''''''''''''")
-                # print("Request: to ",url) 
-                # print("Request Headers: ",  headers) 
-                # print("Request Body: ", json.dumps(payload))
-                # print("''''''''''REQUEST'''''''''''''''''")
 
                 response = requests.request("POST", url, headers=headers, data=json.dumps(payload), verify = False)
 
                 response.raise_for_status()
                 response_payload = json.loads(response.text)
 
-                # print(colored("''''''''''RESPONSE'''''''''''''''''","green"))
-                # print(colored(f"Response to: {response.url}","green"))
-                # print(colored(f"Response Headers: {response.headers}","green"))
-                # print(colored(f"Response: {response.json()}","green"))
-                # print(colored(f"Response Status code: {response.status_code}","green"))
-                # print(colored("Get AUTH Success. Received access token", "green"))
-                # print(colored("''''''''''RESPONSE'''''''''''''''''","green"))
                 return response_payload['access_token']
 
             except requests.exceptions.HTTPError as err:
@@ -96,8 +72,8 @@ class PreviousRegister():
         description = config.get("credentials", "invoker_description")
         cn = config.get("credentials", "invoker_cn")
 
-        capif_ip = os.getenv('CAPIF_HOSTNAME')
-        capif_port = os.getenv('CAPIF_PORT')
+        register_ip = os.getenv('REGISTER_HOSTNAME')
+        register_port = os.getenv('REGISTER_PORT')
 
         if os.path.exists("capif_ops/config_files/demo_values.json"):
             #os.remove("capif_ops/config_files/demo_values.json")
@@ -108,7 +84,7 @@ class PreviousRegister():
 
         #First we need register exposer in CAPIF
         try:
-            netappID, ccf_onboarding_url, ccf_discover_url = self.__register_invoker_to_capif(capif_ip, capif_port, username, password, role, description, cn)
+            netappID, ccf_onboarding_url, ccf_discover_url = self.__register_invoker_to_capif(register_ip, register_port, username, password, role, description, cn)
             demo_values['netappID'] = netappID
             demo_values['ccf_onboarding_url'] = ccf_onboarding_url
             demo_values['ccf_discover_url'] = ccf_discover_url
@@ -119,7 +95,7 @@ class PreviousRegister():
                 json.dump(demo_values, outfile)
 
             if 'netappID' in demo_values:
-                access_token = self.__get_capif_auth(capif_ip, capif_port, username, password)
+                access_token = self.__get_capif_auth(register_ip, register_port, username, password)
                 demo_values['capif_access_token'] = access_token
 
             with open('capif_ops/config_files/demo_values.json', 'w') as outfile:

@@ -6,12 +6,11 @@ from termcolor import colored
 
 class PreviousAuth():
 
-    def __get_capif_auth(self, capif_ip, capif_port, username, password):
+    def __get_capif_auth(self, register_ip, register_port, username, password):
 
             #print("Geting Auth to exposer")
-            #url = "http://{}:{}/getauth".format(capif_ip, capif_port)
             #url = "https://register:8084/getauth".format(capif_port)
-            url = "http://{}:{}/getauth".format(capif_ip, capif_port)
+            url = "https://{}:{}/getauth".format(register_ip, register_port)
 
             payload = dict()
             payload['username'] = username
@@ -41,8 +40,8 @@ class PreviousAuth():
         username = config.get("credentials", "invoker_username")
         password = config.get("credentials", "invoker_password")
 
-        capif_ip = os.getenv('CAPIF_HOSTNAME')
-        capif_port = os.getenv('CAPIF_PORT')
+        register_ip = os.getenv('REGISTER_HOSTNAME')
+        register_port = os.getenv('REGISTER_PORT')
 
         if os.path.exists("capif_ops/config_files/demo_values.json"):
             #os.remove("capif_ops/config_files/demo_values.json")
@@ -54,7 +53,7 @@ class PreviousAuth():
         #First we need register exposer in CAPIF
         try:
             if 'netappID' in demo_values:
-                access_token = self.__get_capif_auth(capif_ip, capif_port, username, password)
+                access_token = self.__get_capif_auth(register_ip, register_port, username, password)
                 demo_values['capif_access_token'] = access_token
 
             with open('capif_ops/config_files/demo_values.json', 'w') as outfile:
